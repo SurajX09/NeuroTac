@@ -1,1 +1,219 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Catch The Coins</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+background:linear-gradient(135deg,#0f172a,#1e293b);
+font-family:Arial,sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+overflow:hidden;
+color:white;
+}
+
+#game{
+position:relative;
+width:800px;
+height:500px;
+background:linear-gradient(#0ea5e9,#1d4ed8);
+border-radius:20px;
+overflow:hidden;
+box-shadow:0 0 30px #0008;
+}
+
+#player{
+position:absolute;
+bottom:20px;
+left:360px;
+width:70px;
+height:25px;
+background:#22c55e;
+border-radius:20px;
+}
+
+.coin{
+position:absolute;
+width:30px;
+height:30px;
+border-radius:50%;
+background:gold;
+box-shadow:0 0 15px yellow;
+}
+
+.bomb{
+position:absolute;
+width:30px;
+height:30px;
+border-radius:50%;
+background:red;
+box-shadow:0 0 15px crimson;
+}
+
+#ui{
+position:absolute;
+top:15px;
+left:20px;
+font-size:22px;
+font-weight:bold;
+text-shadow:0 0 10px black;
+}
+
+#gameover{
+position:absolute;
+inset:0;
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+background:#000b;
+font-size:40px;
+}
+
+button{
+margin-top:20px;
+padding:12px 30px;
+font-size:20px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+background:#22c55e;
+color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<div id="ui">
+Score: <span id="score">0</span>
+</div>
+
+<div id="player"></div>
+
+<div id="gameover">
+<div>Game Over</div>
+<div style="font-size:24px;margin-top:10px;">
+Final Score: <span id="final"></span>
+</div>
+<button onclick="restart()">Play Again</button>
+</div>
+
+</div>
+
+<script>
+
+const game=document.getElementById("game");
+const player=document.getElementById("player");
+const scoreText=document.getElementById("score");
+const gameover=document.getElementById("gameover");
+const final=document.getElementById("final");
+
+let px=360;
+let score=0;
+let running=true;
+
+document.addEventListener("keydown",e=>{
+if(!running)return;
+
+if(e.key=="ArrowLeft") px-=35;
+if(e.key=="ArrowRight") px+=35;
+
+px=Math.max(0,Math.min(730,px));
+player.style.left=px+"px";
+});
+
+function spawn(type){
+
+let obj=document.createElement("div");
+obj.className=type;
+
+obj.style.left=Math.random()*770+"px";
+obj.style.top="-40px";
+
+game.appendChild(obj);
+
+let y=-40;
+
+let speed=3+Math.random()*3;
+
+let fall=setInterval(()=>{
+
+if(!running){
+clearInterval(fall);
+obj.remove();
+return;
+}
+
+y+=speed;
+obj.style.top=y+"px";
+
+let ox=parseFloat(obj.style.left);
+
+if(
+y>445 &&
+ox<px+70 &&
+ox+30>px
+){
+
+if(type=="coin"){
+score++;
+scoreText.innerText=score;
+}else{
+running=false;
+final.innerText=score;
+gameover.style.display="flex";
+}
+
+clearInterval(fall);
+obj.remove();
+}
+
+if(y>520){
+clearInterval(fall);
+obj.remove();
+}
+
+},20);
+
+}
+
+let loop=setInterval(()=>{
+
+if(!running)return;
+
+if(Math.random()<0.75)
+spawn("coin");
+else
+spawn("bomb");
+
+},700);
+
+function restart(){
+
+document.querySelectorAll(".coin,.bomb").forEach(x=>x.remove());
+
+score=0;
+running=true;
+px=360;
+
+scoreText.innerText=0;
+player.style.left=px+"px";
+
+gameover.style.display="none";
+
+}
+
+</script>
+
+</body>
+</html>
