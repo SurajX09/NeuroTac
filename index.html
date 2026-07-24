@@ -1,218 +1,187 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Catch The Coins</title>
-
+<title>Tic Tac Toe AI</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{
-background:linear-gradient(135deg,#0f172a,#1e293b);
-font-family:Arial,sans-serif;
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
-overflow:hidden;
-color:white;
+background:linear-gradient(135deg,#1e3c72,#2a5298);
+color:#fff;
 }
-
-#game{
-position:relative;
-width:800px;
-height:500px;
-background:linear-gradient(#0ea5e9,#1d4ed8);
-border-radius:20px;
-overflow:hidden;
-box-shadow:0 0 30px #0008;
+.container{text-align:center}
+h1{margin-bottom:20px}
+#board{
+display:grid;
+grid-template-columns:repeat(3,100px);
+grid-gap:10px;
+justify-content:center;
+margin:auto;
 }
-
-#player{
-position:absolute;
-bottom:20px;
-left:360px;
-width:70px;
-height:25px;
-background:#22c55e;
-border-radius:20px;
-}
-
-.coin{
-position:absolute;
-width:30px;
-height:30px;
-border-radius:50%;
-background:gold;
-box-shadow:0 0 15px yellow;
-}
-
-.bomb{
-position:absolute;
-width:30px;
-height:30px;
-border-radius:50%;
-background:red;
-box-shadow:0 0 15px crimson;
-}
-
-#ui{
-position:absolute;
-top:15px;
-left:20px;
-font-size:22px;
-font-weight:bold;
-text-shadow:0 0 10px black;
-}
-
-#gameover{
-position:absolute;
-inset:0;
-display:none;
+.cell{
+width:100px;
+height:100px;
+background:#ffffff22;
+border-radius:15px;
+display:flex;
 justify-content:center;
 align-items:center;
-flex-direction:column;
-background:#000b;
-font-size:40px;
+font-size:50px;
+cursor:pointer;
+transition:.2s;
 }
-
+.cell:hover{background:#ffffff44}
 button{
 margin-top:20px;
-padding:12px 30px;
-font-size:20px;
+padding:10px 25px;
+font-size:18px;
 border:none;
-border-radius:10px;
+border-radius:8px;
 cursor:pointer;
-background:#22c55e;
+background:#00d084;
 color:white;
 }
+#status{margin-top:15px;font-size:22px}
 </style>
 </head>
-
 <body>
 
-<div id="game">
+<div class="container">
+<h1>❌ Tic Tac Toe ⭕</h1>
 
-<div id="ui">
-Score: <span id="score">0</span>
-</div>
+<div id="board"></div>
 
-<div id="player"></div>
+<div id="status">Your Turn (X)</div>
 
-<div id="gameover">
-<div>Game Over</div>
-<div style="font-size:24px;margin-top:10px;">
-Final Score: <span id="final"></span>
-</div>
-<button onclick="restart()">Play Again</button>
-</div>
+<button onclick="resetGame()">Restart</button>
 
 </div>
 
 <script>
+const board=document.getElementById("board");
+const status=document.getElementById("status");
 
-const game=document.getElementById("game");
-const player=document.getElementById("player");
-const scoreText=document.getElementById("score");
-const gameover=document.getElementById("gameover");
-const final=document.getElementById("final");
+let cells=["","","","","","","","",""];
+let gameOver=false;
 
-let px=360;
-let score=0;
-let running=true;
+for(let i=0;i<9;i++){
+let c=document.createElement("div");
+c.className="cell";
+c.dataset.i=i;
+c.onclick=playerMove;
+board.appendChild(c);
+}
 
-document.addEventListener("keydown",e=>{
-if(!running)return;
+function playerMove(){
+let i=this.dataset.i;
+if(cells[i]||gameOver)return;
+cells[i]="X";
+draw();
+if(check("X")){
+status.innerHTML="🎉 You Win!";
+gameOver=true;
+return;
+}
+if(full()){
+status.innerHTML="🤝 Draw";
+gameOver=true;
+return;
+}
+aiMove();
+}
 
-if(e.key=="ArrowLeft") px-=35;
-if(e.key=="ArrowRight") px+=35;
+function aiMove(){
+let best=-Infinity,move;
 
-px=Math.max(0,Math.min(730,px));
-player.style.left=px+"px";
-});
+for(let i=0;i<9;i++){
+if(cells[i]==""){
+cells[i]="O";
+let score=minimax(cells,false);
+cells[i]="";
+if(score>best){
+best=score;
+move=i;
+}
+}
+}
 
-function spawn(type){
+cells[move]="O";
+draw();
 
-let obj=document.createElement("div");
-obj.className=type;
-
-obj.style.left=Math.random()*770+"px";
-obj.style.top="-40px";
-
-game.appendChild(obj);
-
-let y=-40;
-
-let speed=3+Math.random()*3;
-
-let fall=setInterval(()=>{
-
-if(!running){
-clearInterval(fall);
-obj.remove();
+if(check("O")){
+status.innerHTML="🤖 AI Wins";
+gameOver=true;
 return;
 }
 
-y+=speed;
-obj.style.top=y+"px";
+if(full()){
+status.innerHTML="🤝 Draw";
+gameOver=true;
+return;
+}
 
-let ox=parseFloat(obj.style.left);
+status.innerHTML="Your Turn (X)";
+}
 
-if(
-y>445 &&
-ox<px+70 &&
-ox+30>px
-){
+function minimax(b,isMax){
 
-if(type=="coin"){
-score++;
-scoreText.innerText=score;
+if(check("O"))return 1;
+if(check("X"))return -1;
+if(full())return 0;
+
+if(isMax){
+let best=-Infinity;
+for(let i=0;i<9;i++){
+if(b[i]==""){
+b[i]="O";
+best=Math.max(best,minimax(b,false));
+b[i]="";
+}
+}
+return best;
 }else{
-running=false;
-final.innerText=score;
-gameover.style.display="flex";
+let best=Infinity;
+for(let i=0;i<9;i++){
+if(b[i]==""){
+b[i]="X";
+best=Math.min(best,minimax(b,true));
+b[i]="";
+}
+}
+return best;
+}
 }
 
-clearInterval(fall);
-obj.remove();
+function check(p){
+const w=[
+[0,1,2],[3,4,5],[6,7,8],
+[0,3,6],[1,4,7],[2,5,8],
+[0,4,8],[2,4,6]
+];
+return w.some(a=>a.every(i=>cells[i]==p));
 }
 
-if(y>520){
-clearInterval(fall);
-obj.remove();
+function full(){
+return cells.every(c=>c!="");
 }
 
-},20);
-
+function draw(){
+document.querySelectorAll(".cell").forEach((c,i)=>{
+c.innerHTML=cells[i];
+});
 }
 
-let loop=setInterval(()=>{
-
-if(!running)return;
-
-if(Math.random()<0.75)
-spawn("coin");
-else
-spawn("bomb");
-
-},700);
-
-function restart(){
-
-document.querySelectorAll(".coin,.bomb").forEach(x=>x.remove());
-
-score=0;
-running=true;
-px=360;
-
-scoreText.innerText=0;
-player.style.left=px+"px";
-
-gameover.style.display="none";
-
+function resetGame(){
+cells=["","","","","","","","",""];
+gameOver=false;
+draw();
+status.innerHTML="Your Turn (X)";
 }
-
 </script>
 
 </body>
