@@ -1,188 +1,552 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Tic Tac Toe AI 🎮</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101820">
+<title>LeadFlow — Premium Lead Generation</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+:root {
+  --bg:#f7f8fc;
+  --surface:#ffffff;
+  --text:#17202e;
+  --muted:#687386;
+  --primary:#635bff;
+  --secondary:#00bfa6;
+  --border:#e7e9f0;
+  --shadow:0 20px 60px rgba(26,35,60,.08);
+}
+[data-theme="dark"] {
+  --bg:#0c1220;
+  --surface:#141e30;
+  --text:#f4f6ff;
+  --muted:#a1adc2;
+  --primary:#8b83ff;
+  --secondary:#31d8be;
+  --border:#28354a;
+  --shadow:0 20px 60px rgba(0,0,0,.25);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
 body{
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-background:linear-gradient(135deg,#1e3c12,#2a5298);
-color:#fff;
+  font-family:Inter,Arial,sans-serif;
+  background:var(--bg);color:var(--text);
+  transition:background .3s,color .3s;
+  overflow-x:hidden;
 }
-.container{text-align:center}
-h1{margin-bottom:20px}
-#board{
-display:grid;
-grid-template-columns:repeat(3,100px);
-grid-gap:10px;
-justify-content:center;
-margin:auto;
+a{text-decoration:none;color:inherit}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.container{width:min(1160px,90%);margin:auto}
+.navbar{
+  position:fixed;top:0;width:100%;z-index:100;
+  background:color-mix(in srgb,var(--bg) 85%,transparent);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
 }
-.cell{
-width:100px;
-height:100px;
-background:#ffffff22;
-border-radius:15px;
-display:flex;
-justify-content:center;
-align-items:center;
-font-size:50px;
-cursor:pointer;
-transition:.2s;
+.nav-inner{
+  height:76px;display:flex;align-items:center;
+  justify-content:space-between;gap:20px;
 }
-.cell:hover{background:#ffffff44}
-button{
-margin-top:20px;
-padding:10px 25px;
-font-size:18px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-background:#00d084;
-color:white;
+.logo{font-size:25px;font-weight:900;letter-spacing:-1.5px}
+.logo span{color:var(--primary)}
+.nav-links{display:flex;gap:27px;align-items:center}
+.nav-links a{font-size:13px;color:var(--muted);font-weight:600}
+.nav-links a:hover{color:var(--primary)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text);padding:10px 12px;border-radius:12px;
 }
-#status{margin-top:15px;font-size:22px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:9px;padding:14px 23px;border:0;border-radius:12px;
+  font-weight:750;background:var(--primary);color:white;
+  transition:.25s;
+}
+.btn:hover{transform:translateY(-3px);box-shadow:0 12px 28px #635bff44}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-green{background:#16a66a}
+.menu-btn{display:none}
+.hero{
+  padding:165px 0 100px;position:relative;overflow:hidden;
+}
+.hero:before{
+  content:"";position:absolute;width:500px;height:500px;
+  background:var(--primary);opacity:.12;filter:blur(120px);
+  border-radius:50%;top:0;right:-100px;pointer-events:none;
+}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:65px;align-items:center}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--primary);background:color-mix(in srgb,var(--primary) 10%,transparent);
+  padding:9px 15px;border-radius:30px;font-size:12px;font-weight:800;
+  letter-spacing:1px;
+}
+h1{
+  font-size:clamp(43px,6vw,72px);line-height:1.07;
+  letter-spacing:-3px;margin:25px 0;
+}
+.gradient-text{
+  background:linear-gradient(100deg,var(--primary),var(--secondary));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero-desc{font-size:17px;line-height:1.8;color:var(--muted);max-width:540px}
+.hero-buttons{display:flex;gap:13px;flex-wrap:wrap;margin-top:30px}
+.hero-note{font-size:12px;color:var(--muted);margin-top:22px}
+.hero-visual{
+  min-height:420px;border-radius:30px;
+  background:linear-gradient(145deg,#26225f,#111c39);
+  padding:30px;position:relative;display:flex;
+  align-items:center;justify-content:center;
+  box-shadow:0 30px 80px #24205a40;
+}
+.visual-card{
+  background:#ffffff12;border:1px solid #ffffff30;
+  border-radius:22px;padding:25px;width:100%;color:white;
+  backdrop-filter:blur(15px);
+}
+.visual-label{color:#b7b7ed;font-size:12px}
+.visual-title{font-size:26px;font-weight:800;margin:12px 0 25px}
+.visual-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:15px 0;border-top:1px solid #ffffff25;font-size:13px;
+}
+.visual-dot{width:9px;height:9px;background:#39dbac;border-radius:50%;display:inline-block;margin-right:8px}
+.floating{
+  position:absolute;background:white;color:#17202e;
+  padding:15px 20px;border-radius:15px;
+  box-shadow:var(--shadow);font-size:13px;font-weight:800;
+}
+.float-one{top:35px;right:-20px}
+.float-two{bottom:35px;left:-25px}
+.section{padding:100px 0}
+.section-head{text-align:center;max-width:650px;margin:0 auto 55px}
+.section-head h2{font-size:clamp(32px,4vw,47px);letter-spacing:-1.5px;margin:17px 0}
+.section-head p{color:var(--muted);line-height:1.8}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:30px;transition:.3s;
+}
+.card:hover{transform:translateY(-8px);box-shadow:var(--shadow);border-color:var(--primary)}
+.card-icon{
+  width:53px;height:53px;display:grid;place-items:center;
+  border-radius:16px;background:color-mix(in srgb,var(--primary) 12%,transparent);
+  color:var(--primary);font-size:25px;margin-bottom:22px;
+}
+.card h3{font-size:19px;margin-bottom:12px}
+.card p{font-size:14px;color:var(--muted);line-height:1.8}
+.card a{display:inline-block;margin-top:20px;color:var(--primary);font-size:13px;font-weight:800}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+.why-panel{
+  padding:38px;border-radius:25px;
+  background:linear-gradient(145deg,#25205f,#111c39);color:white;
+}
+.why-panel h3{font-size:28px;margin-bottom:18px}
+.why-panel p{color:#c5c7e3;line-height:1.8}
+.why-item{display:flex;gap:16px;margin:28px 0}
+.check{color:#24d9b2;font-size:22px}
+.why-item h4{margin-bottom:7px}
+.why-item p{color:var(--muted);font-size:13px;line-height:1.7}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.step-number{font-size:42px;color:var(--primary);font-weight:900;margin-bottom:20px}
+.faq{max-width:800px;margin:auto}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-question{
+  width:100%;padding:23px 0;background:none;border:0;
+  display:flex;justify-content:space-between;text-align:left;
+  color:var(--text);font-weight:750;font-size:16px;
+}
+.faq-answer{
+  max-height:0;overflow:hidden;color:var(--muted);
+  line-height:1.8;font-size:14px;transition:max-height .35s,padding .35s;
+}
+.faq-item.active .faq-answer{max-height:180px;padding-bottom:22px}
+.contact-wrap{
+  display:grid;grid-template-columns:.8fr 1.2fr;gap:40px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:28px;padding:40px;box-shadow:var(--shadow);
+}
+.contact-info h2{font-size:38px;letter-spacing:-1.5px;margin:20px 0}
+.contact-info p{color:var(--muted);line-height:1.8}
+.contact-info .btn{margin-top:25px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field.full{grid-column:1/-1}
+.field label{font-size:12px;font-weight:750}
+.field input,.field select,.field textarea{
+  width:100%;padding:14px;border-radius:11px;
+  border:1px solid var(--border);background:var(--bg);
+  color:var(--text);outline:none;
+}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--primary)}
+.field textarea{min-height:110px;resize:vertical}
+.form-submit{width:100%;margin-top:18px}
+.form-message{font-size:13px;margin-top:12px;color:var(--muted)}
+footer{padding:35px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px}
+.whatsapp-float{
+  position:fixed;right:23px;bottom:23px;z-index:90;
+  width:58px;height:58px;border-radius:50%;
+  background:#20c978;color:white;display:grid;place-items:center;
+  font-size:28px;box-shadow:0 8px 25px #20c97855;
+}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s,transform .7s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:900px){
+ .hero-grid,.why-grid,.contact-wrap{grid-template-columns:1fr}
+ .cards{grid-template-columns:repeat(2,1fr)}
+ .nav-links{
+  display:none;position:absolute;top:76px;left:0;width:100%;
+  background:var(--surface);padding:25px;flex-direction:column;
+  border-bottom:1px solid var(--border);
+ }
+ .nav-links.open{display:flex}
+ .menu-btn{display:block}
+ .hero-visual{max-width:600px;margin:auto;width:100%}
+}
+@media(max-width:600px){
+ .nav-inner{height:68px}
+ .logo{font-size:21px}
+ .nav-actions{gap:6px}
+ .nav-actions .btn{padding:10px;font-size:11px}
+ .hero{padding:125px 0 70px}
+ .hero-grid{gap:45px}
+ h1{letter-spacing:-2px}
+ .hero-visual{min-height:340px;padding:18px}
+ .floating{font-size:11px}
+ .float-one{right:0}
+ .float-two{left:0}
+ .section{padding:70px 0}
+ .cards,.steps{grid-template-columns:1fr}
+ .contact-wrap{padding:23px}
+ .form-grid{grid-template-columns:1fr}
+ .field.full{grid-column:auto}
+ .section-head{margin-bottom:35px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
 
-<div class="container">
-<h1>❌ Tic Tac Toe ⭕</h1>
+<header class="navbar">
+ <div class="container nav-inner">
+  <a href="#home" class="logo">Lead<span>Flow.</span></a>
+  <nav class="nav-links" id="navLinks">
+   <a href="#home" data-i="home">Home</a>
+   <a href="#services" data-i="services">Services</a>
+   <a href="#why" data-i="why">Why Us</a>
+   <a href="#process" data-i="process">Process</a>
+   <a href="#contact" data-i="contact">Contact</a>
+  </nav>
+  <div class="nav-actions">
+   <select id="language" class="icon-btn" aria-label="Language">
+    <option value="en">EN</option>
+    <option value="hi">हिंदी</option>
+    <option value="mr">मराठी</option>
+   </select>
+   <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">🌙</button>
+   <a href="#contact" class="btn">Let's Talk ↗</a>
+   <button class="icon-btn menu-btn" id="menuBtn">☰</button>
+  </div>
+ </div>
+</header>
 
-<div id="board"></div>
+<main>
+<section class="hero" id="home">
+ <div class="container hero-grid">
+  <div class="reveal">
+   <div class="eyebrow">✦ YOUR GROWTH STARTS HERE</div>
+   <h1 data-i="headline">Turn Your Ideas Into <span class="gradient-text">Real Growth.</span></h1>
+   <p class="hero-desc" data-i="heroDesc">Discover professional solutions designed around your goals. Let's discuss your requirements and find the right way forward.</p>
+   <div class="hero-buttons">
+    <a href="#contact" class="btn" data-i="getStarted">Get Started ↗</a>
+    <a href="#services" class="btn btn-outline" data-i="explore">Explore Services ↓</a>
+   </div>
+   <p class="hero-note">✦ Personal attention · Clear communication · Customer-first approach</p>
+  </div>
+  <div class="hero-visual reveal">
+   <div class="visual-card">
+    <div class="visual-label">YOUR NEXT BIG MOVE</div>
+    <div class="visual-title">Let's build something<br>meaningful together.</div>
+    <div class="visual-row"><span>Personalized solutions</span><b>✦</b></div>
+    <div class="visual-row"><span>Transparent process</span><b>✦</b></div>
+    <div class="visual-row"><span>Direct communication</span><b>✦</b></div>
+    <div class="visual-row"><span><i class="visual-dot"></i>Ready to connect</span><b>↗</b></div>
+   </div>
+   <div class="floating float-one">✦ Premium Experience</div>
+   <div class="floating float-two">✓ Customer First</div>
+  </div>
+ </div>
+</section>
 
-<div id="status">Your Turn (X)</div>
+<section class="section" id="services">
+ <div class="container">
+  <div class="section-head reveal">
+   <div class="eyebrow">WHAT WE OFFER</div>
+   <h2 data-i="servicesTitle">Solutions Designed Around You</h2>
+   <p data-i="servicesDesc">Explore our services and find the right solution for your needs.</p>
+  </div>
+  <div class="cards">
+   <article class="card reveal"><div class="card-icon">✧</div><h3 data-i="s1">Consultation</h3><p data-i="sd1">Get clarity about your requirements with a personalized discussion.</p><a href="#contact" data-i="learn">ENQUIRE NOW ↗</a></article>
+   <article class="card reveal"><div class="card-icon">◈</div><h3 data-i="s2">Custom Solutions</h3><p data-i="sd2">Solutions tailored to your individual goals and requirements.</p><a href="#contact" data-i="learn">ENQUIRE NOW ↗</a></article>
+   <article class="card reveal"><div class="card-icon">◎</div><h3 data-i="s3">Professional Support</h3><p data-i="sd3">Get assistance and guidance throughout your journey.</p><a href="#contact" data-i="learn">ENQUIRE NOW ↗</a></article>
+  </div>
+ </div>
+</section>
 
-<button onclick="resetGame()">Restart</button>
+<section class="section" id="why">
+ <div class="container why-grid">
+  <div class="reveal">
+   <div class="eyebrow">THE DIFFERENCE</div>
+   <h2 style="font-size:clamp(32px,4vw,48px);margin:20px 0" data-i="whyTitle">A Better Experience Begins With the Right Partner.</h2>
+   <p style="color:var(--muted);line-height:1.8" data-i="whyDesc">We believe in understanding your needs first, then recommending solutions that genuinely make sense.</p>
+   <div class="why-item"><span class="check">✓</span><div><h4 data-i="w1">Personalized Approach</h4><p data-i="wd1">Every customer receives attention based on their requirements.</p></div></div>
+   <div class="why-item"><span class="check">✓</span><div><h4 data-i="w2">Transparent Communication</h4><p data-i="wd2">Clear conversations and no unnecessary confusion.</p></div></div>
+   <div class="why-item"><span class="check">✓</span><div><h4 data-i="w3">Customer-Focused Support</h4><p data-i="wd3">Your experience and satisfaction remain important.</p></div></div>
+  </div>
+  <div class="why-panel reveal">
+   <div class="eyebrow" style="background:#ffffff18;color:#bdb9ff">OUR COMMITMENT</div>
+   <h3 data-i="commitTitle">Your goals deserve thoughtful attention.</h3>
+   <p data-i="commitDesc">Start with a conversation. Share what you need, ask questions and explore your options without pressure.</p>
+   <a href="#contact" class="btn btn-green" data-i="talk">Start a Conversation ↗</a>
+  </div>
+ </div>
+</section>
 
-</div>
+<section class="section" id="process">
+ <div class="container">
+  <div class="section-head reveal">
+   <div class="eyebrow">SIMPLE PROCESS</div>
+   <h2 data-i="processTitle">Three Steps to Get Started</h2>
+   <p data-i="processDesc">A straightforward way to discuss your needs and move forward.</p>
+  </div>
+  <div class="steps">
+   <div class="card reveal"><div class="step-number">01</div><h3 data-i="p1">Share Your Requirement</h3><p data-i="pd1">Tell us what you are looking for through our contact form or WhatsApp.</p></div>
+   <div class="card reveal"><div class="step-number">02</div><h3 data-i="p2">Discuss Your Options</h3><p data-i="pd2">We will discuss your needs and explore suitable options together.</p></div>
+   <div class="card reveal"><div class="step-number">03</div><h3 data-i="p3">Take the Next Step</h3><p data-i="pd3">Once everything is clear, decide how you would like to proceed.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="faq">
+ <div class="container">
+  <div class="section-head reveal">
+   <div class="eyebrow">GOT QUESTIONS?</div>
+   <h2 data-i="faqTitle">Frequently Asked Questions</h2>
+  </div>
+  <div class="faq reveal" id="faqList"></div>
+ </div>
+</section>
+
+<section class="section" id="contact">
+ <div class="container">
+  <div class="contact-wrap reveal">
+   <div class="contact-info">
+    <div class="eyebrow">LET'S CONNECT</div>
+    <h2 data-i="contactTitle">Have Something in Mind?</h2>
+    <p data-i="contactDesc">Share your requirements. We will connect with you directly on WhatsApp to discuss the next steps.</p>
+    <a href="#" class="btn btn-green whatsapp-link" data-i="whatsapp">Chat on WhatsApp ↗</a>
+   </div>
+   <form id="leadForm">
+    <div class="form-grid">
+     <div class="field"><label data-i="nameLabel" for="name">Full Name *</label><input id="name" name="name" required placeholder="Your name"></div>
+     <div class="field"><label data-i="emailLabel" for="email">Email Address *</label><input id="email" name="email" type="email" required placeholder="you@example.com"></div>
+     <div class="field"><label data-i="phoneLabel" for="phone">WhatsApp / Mobile *</label><input id="phone" name="phone" type="tel" required placeholder="Your mobile number"></div>
+     <div class="field"><label data-i="companyLabel" for="company">Company (Optional)</label><input id="company" name="company" placeholder="Company name"></div>
+     <div class="field full"><label data-i="serviceLabel" for="service">Service Required *</label>
+      <select id="service" name="service" required>
+       <option value="">Select a service</option>
+       <option>Consultation</option><option>Custom Solutions</option><option>Professional Support</option><option>Other</option>
+      </select>
+     </div>
+     <div class="field full"><label data-i="detailsLabel" for="details">Project Details *</label><textarea id="details" name="details" required placeholder="Tell us about your requirements..."></textarea></div>
+    </div>
+    <button class="btn btn-green form-submit" type="submit" data-i="submit">Send Enquiry via WhatsApp ↗</button>
+    <p class="form-message" id="formMessage" data-i="privacy">Your information will be used to prepare a WhatsApp message. It is not stored by this demo website.</p>
+   </form>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer><div class="container">© <span id="year"></span> LeadFlow. <span data-i="footer">Built around meaningful connections.</span></div></footer>
+<a href="#" class="whatsapp-float whatsapp-link" aria-label="Chat on WhatsApp">◉</a>
 
 <script>
-const board=document.getElementById("board");
-const status=document.getElementById("status");
+/* IMPORTANT: Replace with your WhatsApp number including country code.
+   Example format for India: 919876543210 */
+const WHATSAPP_NUMBER = "91XXXXXXXXXX";
 
-let cells=["","","","","","","","",""];
-let gameOver=false;
+const translations = {
+en:{
+home:"Home",services:"Services",why:"Why Us",process:"Process",contact:"Contact",
+headline:'Turn Your Ideas Into <span class="gradient-text">Real Growth.</span>',
+heroDesc:"Discover professional solutions designed around your goals. Let's discuss your requirements and find the right way forward.",
+getStarted:"Get Started ↗",explore:"Explore Services ↓",
+servicesTitle:"Solutions Designed Around You",servicesDesc:"Explore our services and find the right solution for your needs.",
+s1:"Consultation",sd1:"Get clarity about your requirements with a personalized discussion.",
+s2:"Custom Solutions",sd2:"Solutions tailored to your individual goals and requirements.",
+s3:"Professional Support",sd3:"Get assistance and guidance throughout your journey.",
+learn:"ENQUIRE NOW ↗",whyTitle:"A Better Experience Begins With the Right Partner.",
+whyDesc:"We believe in understanding your needs first, then recommending solutions that genuinely make sense.",
+w1:"Personalized Approach",wd1:"Every customer receives attention based on their requirements.",
+w2:"Transparent Communication",wd2:"Clear conversations and no unnecessary confusion.",
+w3:"Customer-Focused Support",wd3:"Your experience and satisfaction remain important.",
+commitTitle:"Your goals deserve thoughtful attention.",commitDesc:"Start with a conversation. Share what you need, ask questions and explore your options without pressure.",
+talk:"Start a Conversation ↗",processTitle:"Three Steps to Get Started",processDesc:"A straightforward way to discuss your needs and move forward.",
+p1:"Share Your Requirement",pd1:"Tell us what you are looking for through our contact form or WhatsApp.",
+p2:"Discuss Your Options",pd2:"We will discuss your needs and explore suitable options together.",
+p3:"Take the Next Step",pd3:"Once everything is clear, decide how you would like to proceed.",
+faqTitle:"Frequently Asked Questions",contactTitle:"Have Something in Mind?",
+contactDesc:"Share your requirements. We will connect with you directly on WhatsApp to discuss the next steps.",
+whatsapp:"Chat on WhatsApp ↗",nameLabel:"Full Name *",emailLabel:"Email Address *",phoneLabel:"WhatsApp / Mobile *",companyLabel:"Company (Optional)",serviceLabel:"Service Required *",detailsLabel:"Project Details *",submit:"Send Enquiry via WhatsApp ↗",privacy:"Your information will be used to prepare a WhatsApp message. It is not stored by this demo website.",footer:"Built around meaningful connections.",
+faq:[
+["How can I get started?","Fill out the contact form or message us directly on WhatsApp."],
+["Is the initial discussion free?","Contact us to discuss the details and any applicable charges."],
+["How soon will I receive a response?","Response time depends on availability. We will get back to you as soon as possible."]
+],validation:"Please complete all required fields correctly.",numberError:"Please configure your WhatsApp number in the JavaScript before using the form."
+},
+hi:{
+home:"होम",services:"सेवाएं",why:"हमें क्यों चुनें",process:"प्रक्रिया",contact:"संपर्क",
+headline:'अपने विचारों को दें <span class="gradient-text">नई उड़ान।</span>',
+heroDesc:"आपकी जरूरतों के अनुसार पेशेवर समाधान। आइए बात करें और आपके लिए सही रास्ता खोजें।",
+getStarted:"शुरू करें ↗",explore:"सेवाएं देखें ↓",
+servicesTitle:"आपकी जरूरतों के अनुसार समाधान",servicesDesc:"हमारी सेवाएं देखें और अपने लिए सही विकल्प चुनें।",
+s1:"परामर्श",sd1:"व्यक्तिगत बातचीत के जरिए अपनी जरूरतों को समझें।",s2:"कस्टम समाधान",sd2:"आपके लक्ष्यों और जरूरतों के अनुसार समाधान।",s3:"पेशेवर सहायता",sd3:"आपके सफर में मार्गदर्शन और सहायता।",
+learn:"पूछताछ करें ↗",whyTitle:"बेहतर अनुभव की शुरुआत सही साथी से होती है।",whyDesc:"हम पहले आपकी जरूरतों को समझते हैं और फिर सही समाधान सुझाते हैं।",
+w1:"व्यक्तिगत दृष्टिकोण",wd1:"हर ग्राहक की जरूरतों पर विशेष ध्यान।",w2:"पारदर्शी बातचीत",wd2:"स्पष्ट संवाद और बिना किसी भ्रम के।",w3:"ग्राहक-केंद्रित सहायता",wd3:"आपका अनुभव और संतुष्टि हमारे लिए महत्वपूर्ण है।",
+commitTitle:"आपके लक्ष्यों पर पूरा ध्यान जरूरी है।",commitDesc:"बातचीत से शुरुआत करें। अपनी जरूरत बताएं और बिना दबाव अपने विकल्प समझें।",
+talk:"बातचीत शुरू करें ↗",processTitle:"शुरुआत के तीन आसान कदम",processDesc:"अपनी जरूरत बताएं और आगे बढ़ें।",
+p1:"अपनी जरूरत बताएं",pd1:"फॉर्म या WhatsApp के जरिए अपनी जरूरत साझा करें।",p2:"विकल्पों पर चर्चा करें",pd2:"हम मिलकर उपयुक्त विकल्पों पर बात करेंगे।",p3:"अगला कदम उठाएं",pd3:"सब कुछ स्पष्ट होने पर आगे बढ़ने का फैसला लें।",
+faqTitle:"अक्सर पूछे जाने वाले सवाल",contactTitle:"क्या आप बात करना चाहते हैं?",
+contactDesc:"अपनी जरूरत साझा करें। हम अगले कदमों पर चर्चा करने के लिए WhatsApp पर जुड़ेंगे।",
+whatsapp:"WhatsApp पर बात करें ↗",nameLabel:"पूरा नाम *",emailLabel:"ईमेल पता *",phoneLabel:"WhatsApp / मोबाइल *",companyLabel:"कंपनी (वैकल्पिक)",serviceLabel:"आवश्यक सेवा *",detailsLabel:"प्रोजेक्ट विवरण *",submit:"WhatsApp पर पूछताछ भेजें ↗",privacy:"आपकी जानकारी से WhatsApp संदेश तैयार होगा। यह वेबसाइट जानकारी स्टोर नहीं करती।",footer:"बेहतर संबंधों के लिए बनाया गया।",
+faq:[["शुरुआत कैसे करें?","फॉर्म भरें या सीधे WhatsApp पर संपर्क करें।"],["क्या पहली बातचीत मुफ्त है?","शुल्क और विवरण जानने के लिए हमसे संपर्क करें।"],["जवाब कब मिलेगा?","उपलब्धता के अनुसार हम जल्द से जल्द जवाब देंगे।"]],
+validation:"कृपया सभी जरूरी जानकारी सही भरें।",numberError:"फॉर्म इस्तेमाल करने से पहले JavaScript में अपना WhatsApp नंबर सेट करें।"
+},
+mr:{
+home:"मुख्यपृष्ठ",services:"सेवा",why:"आम्हाला का निवडावे",process:"प्रक्रिया",contact:"संपर्क",
+headline:'तुमच्या कल्पनांना द्या <span class="gradient-text">नवी दिशा.</span>',
+heroDesc:"तुमच्या गरजांनुसार व्यावसायिक उपाय. चला चर्चा करूया आणि योग्य मार्ग शोधूया.",
+getStarted:"सुरुवात करा ↗",explore:"सेवा पहा ↓",
+servicesTitle:"तुमच्या गरजांनुसार उपाय",servicesDesc:"आमच्या सेवा पाहा आणि योग्य पर्याय निवडा.",
+s1:"सल्ला",sd1:"वैयक्तिक चर्चेद्वारे तुमच्या गरजा समजून घ्या.",s2:"सानुकूल उपाय",sd2:"तुमच्या उद्दिष्टांनुसार तयार केलेले उपाय.",s3:"व्यावसायिक मदत",sd3:"तुमच्या प्रवासात मार्गदर्शन आणि मदत.",
+learn:"चौकशी करा ↗",whyTitle:"योग्य साथीदारासोबत उत्तम अनुभवाची सुरुवात होते.",whyDesc:"आम्ही आधी तुमच्या गरजा समजून घेतो आणि नंतर योग्य उपाय सुचवतो.",
+w1:"वैयक्तिक दृष्टिकोन",wd1:"प्रत्येक ग्राहकाच्या गरजांकडे विशेष लक्ष.",w2:"पारदर्शक संवाद",wd2:"स्पष्ट संवाद आणि कोणताही गोंधळ नाही.",w3:"ग्राहक-केंद्रित मदत",wd3:"तुमचा अनुभव आणि समाधान महत्त्वाचे आहे.",
+commitTitle:"तुमच्या उद्दिष्टांना योग्य लक्ष मिळायला हवे.",commitDesc:"संभाषणाने सुरुवात करा. तुमच्या गरजा सांगा आणि पर्याय समजून घ्या.",
+talk:"संभाषण सुरू करा ↗",processTitle:"सुरुवातीचे तीन सोपे टप्पे",processDesc:"तुमच्या गरजा सांगा आणि पुढे चला.",
+p1:"तुमची गरज सांगा",pd1:"फॉर्म किंवा WhatsApp द्वारे तुमची गरज सांगा.",p2:"पर्यायांवर चर्चा करा",pd2:"आपण मिळून योग्य पर्यायांवर चर्चा करू.",p3:"पुढचे पाऊल उचला",pd3:"सर्व स्पष्ट झाल्यावर पुढे जाण्याचा निर्णय घ्या.",
+faqTitle:"सामान्य प्रश्न",contactTitle:"चर्चा करायची आहे?",
+contactDesc:"तुमच्या गरजा सांगा. पुढील चर्चेसाठी आम्ही WhatsApp वर संपर्क करू.",
+whatsapp:"WhatsApp वर बोला ↗",nameLabel:"पूर्ण नाव *",emailLabel:"ईमेल पत्ता *",phoneLabel:"WhatsApp / मोबाईल *",companyLabel:"कंपनी (ऐच्छिक)",serviceLabel:"आवश्यक सेवा *",detailsLabel:"प्रकल्पाचा तपशील *",submit:"WhatsApp वर चौकशी पाठवा ↗",privacy:"तुमच्या माहितीवरून WhatsApp संदेश तयार होईल. ही वेबसाइट माहिती साठवत नाही.",footer:"चांगल्या संबंधांसाठी तयार केलेले.",
+faq:[["सुरुवात कशी करावी?","फॉर्म भरा किंवा थेट WhatsApp वर संपर्क करा."],["पहिली चर्चा मोफत आहे का?","शुल्क आणि तपशीलांसाठी आमच्याशी संपर्क साधा."],["उत्तर कधी मिळेल?","उपलब्धतेनुसार आम्ही शक्य तितक्या लवकर उत्तर देऊ."]],
+validation:"कृपया सर्व आवश्यक माहिती योग्य भरा.",numberError:"फॉर्म वापरण्यापूर्वी JavaScript मध्ये तुमचा WhatsApp नंबर सेट करा."
+}
+};
 
-for(let i=0;i<9;i++){
-let c=document.createElement("div");
-c.className="cell";
-c.dataset.i=i;
-c.onclick=playerMove;
-board.appendChild(c);
-}
+const language=document.getElementById("language");
+const faqList=document.getElementById("faqList");
 
-function playerMove(){
-let i=this.dataset.i;
-if(cells[i]||gameOver)return;
-cells[i]="X";
-draw();
-if(check("X")){
-status.innerHTML="🎉 You Win!";
-gameOver=true;
-return;
+function setLanguage(lang){
+ const t=translations[lang]||translations.en;
+ document.documentElement.lang=lang;
+ document.querySelectorAll("[data-i]").forEach(el=>{
+  const key=el.dataset.i;
+  if(t[key]!==undefined)el.innerHTML=t[key];
+ });
+ document.querySelectorAll("#service option").forEach((o,i)=>{
+  if(i===0)o.textContent=lang==="hi"?"सेवा चुनें":lang==="mr"?"सेवा निवडा":"Select a service";
+ });
+ faqList.innerHTML=t.faq.map((item,i)=>`
+ <div class="faq-item">
+  <button type="button" class="faq-question">${item[0]} <span>＋</span></button>
+  <div class="faq-answer">${item[1]}</div>
+ </div>`).join("");
+ document.querySelectorAll(".faq-question").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+   const parent=btn.parentElement;
+   document.querySelectorAll(".faq-item").forEach(item=>{
+    if(item!==parent){item.classList.remove("active");item.querySelector("span").textContent="＋";}
+   });
+   parent.classList.toggle("active");
+   btn.querySelector("span").textContent=parent.classList.contains("active")?"−":"＋";
+  });
+ });
+ localStorage.setItem("leadflow-language",lang);
 }
-if(full()){
-status.innerHTML="🤝 Draw";
-gameOver=true;
-return;
-}
-aiMove();
-}
+language.value=localStorage.getItem("leadflow-language")||"en";
+language.addEventListener("change",e=>setLanguage(e.target.value));
+setLanguage(language.value);
 
-function aiMove(){
-let best=-Infinity,move;
-
-for(let i=0;i<9;i++){
-if(cells[i]==""){
-cells[i]="O";
-let score=minimax(cells,false);
-cells[i]="";
-if(score>best){
-best=score;
-move=i;
-}
-}
-}
-
-cells[move]="O";
-draw();
-
-if(check("O")){
-status.innerHTML="🤖 AI Wins";
-gameOver=true;
-return;
-}
-
-if(full()){
-status.innerHTML="🤝 Draw";
-gameOver=true;
-return;
-}
-
-status.innerHTML="Your Turn (X)";
-}
-
-function minimax(b,isMax){
-
-if(check("O"))return 1;
-if(check("X"))return -1;
-if(full())return 0;
-
-if(isMax){
-let best=-Infinity;
-for(let i=0;i<9;i++){
-if(b[i]==""){
-b[i]="O";
-best=Math.max(best,minimax(b,false));
-b[i]="";
-}
-}
-return best;
-}else{
-let best=Infinity;
-for(let i=0;i<9;i++){
-if(b[i]==""){
-b[i]="X";
-best=Math.min(best,minimax(b,true));
-b[i]="";
-}
-}
-return best;
-}
-}
-
-function check(p){
-const w=[
-[0,1,2],[3,4,5],[6,7,8],
-[0,3,6],[1,4,7],[2,5,8],
-[0,4,8],[2,4,6]
-];
-return w.some(a=>a.every(i=>cells[i]==p));
-}
-
-function full(){
-return cells.every(c=>c!="");
-}
-
-function draw(){
-document.querySelectorAll(".cell").forEach((c,i)=>{
-c.innerHTML=cells[i];
+const themeBtn=document.getElementById("themeBtn");
+const savedTheme=localStorage.getItem("leadflow-theme");
+const initialTheme=savedTheme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+document.documentElement.dataset.theme=initialTheme;
+themeBtn.textContent=initialTheme==="dark"?"☀️":"🌙";
+themeBtn.addEventListener("click",()=>{
+ const next=document.documentElement.dataset.theme==="dark"?"light":"dark";
+ document.documentElement.dataset.theme=next;
+ themeBtn.textContent=next==="dark"?"☀️":"🌙";
+ localStorage.setItem("leadflow-theme",next);
 });
-}
 
-function resetGame(){
-cells=["","","","","","","","",""];
-gameOver=false;
-draw();
-status.innerHTML="Your Turn (X)";
-}
+document.getElementById("menuBtn").addEventListener("click",()=>{
+ document.getElementById("navLinks").classList.toggle("open");
+});
+document.querySelectorAll(".nav-links a").forEach(a=>a.addEventListener("click",()=>{
+ document.getElementById("navLinks").classList.remove("open");
+}));
+
+document.getElementById("leadForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const form=e.currentTarget;
+ const t=translations[language.value];
+ if(!form.reportValidity())return;
+ const number=WHATSAPP_NUMBER.replace(/\D/g,"");
+ if(!/^\d{10,15}$/.test(number)){
+  alert(t.numberError);return;
+ }
+ const data=new FormData(form);
+ const message=[
+  "Hello! I would like to enquire about your services.",
+  "",
+  `Name: ${data.get("name")}`,
+  `Email: ${data.get("email")}`,
+  `WhatsApp / Mobile: ${data.get("phone")}`,
+  `Company: ${data.get("company")||"Not provided"}`,
+  `Service: ${data.get("service")}`,
+  `Details: ${data.get("details")}`
+ ].join("\n");
+ window.open(`https://wa.me/${number}?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer");
+});
+
+document.querySelectorAll(".whatsapp-link").forEach(link=>{
+ link.addEventListener("click",e=>{
+  const number=WHATSAPP_NUMBER.replace(/\D/g,"");
+  if(!/^\d{10,15}$/.test(number)){
+   e.preventDefault();
+   alert(translations[language.value].numberError);
+  }else{
+   e.preventDefault();
+   window.open(`https://wa.me/${number}`,"_blank","noopener,noreferrer");
+  }
+ });
+});
+
+const observer=new IntersectionObserver(entries=>{
+ entries.forEach(entry=>{
+  if(entry.isIntersecting){
+   entry.target.classList.add("visible");
+   observer.unobserve(entry.target);
+  }
+ });
+},{threshold:.12});
+document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+document.getElementById("year").textContent=new Date().getFullYear();
 </script>
-
 </body>
 </html>
